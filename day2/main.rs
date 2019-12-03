@@ -24,13 +24,21 @@ fn main() {
   for pc in (0..regs.len()).step_by(4) {
     match regs[pc] {
       1 => {
-        regs[pc+3] = regs[pc+1] + regs[pc+2];
+    let left_index: usize = regs[pc+1] as usize;
+    let right_index: usize = regs[pc+2] as usize;
+    let target_index: usize = regs[pc+3] as usize;
+        regs[target_index] = regs[left_index] + regs[right_index];
       }
       2 => {
-        regs[pc+3] = regs[pc+1] * regs[pc+2];
+    let left_index: usize = regs[pc+1] as usize;
+    let right_index: usize = regs[pc+2] as usize;
+    let target_index: usize = regs[pc+3] as usize;
+        regs[target_index] = regs[left_index] * regs[right_index];
       }
       99 => {
         println!("Program completed: {}", regs[0]);
+        println!("{:?}", regs);
+        return;
       }
       x => {
         println!("Error, unexpected instruction at location {}: {}", pc, x);
