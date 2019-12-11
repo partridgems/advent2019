@@ -7,7 +7,7 @@ fn stdin_to_string() -> Result<String, Box<dyn Error>> {
     return Ok(input);
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 struct Line {
     low_left: Point,
     up_right: Point,
@@ -15,7 +15,18 @@ struct Line {
 }
 impl Line{
     fn intersect(&self, other: &Line) -> Option<Point> {
-        return None; // TODO
+        if !(self.horizontal ^ other.horizontal) { return None; }
+ 
+        let h_line = if self.horizontal { self } else { other };
+        let v_line = if self.horizontal { other } else { self };
+        if h_line.low_left.y > v_line.low_left.y &&
+            h_line.low_left.y < v_line.up_right.y &&
+            v_line.low_left.x > h_line.low_left.x &&
+            v_line.low_left.x < h_line.up_right.x {
+                return Some(Point{x:v_line.low_left.x, y:h_line.low_left.y});
+            } else {
+                return None;
+            }
     }
 }
 
@@ -32,7 +43,7 @@ fn make_line(start: Point, finish: Point) -> Line {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 struct Point {
     x: i32,
     y: i32,
@@ -54,20 +65,20 @@ impl Point {
 fn main() {
     let input = stdin_to_string().unwrap();
     let mut input_lines = input.lines();
-    let wire1 = input_lines.next().unwrap().trim().split(',');
-    let wire2: Vec<String> =
-        input_lines.next().unwrap().trim().split(',').map(String::from).collect();
+    let wire1 = input_lines.next().unwrap().trim();
+    let wire2 = input_lines.next().unwrap().trim();
 
-    let mut start1 = Point{x:0, y:0};
-    let mut start2 = Point{x:0, y:0};
     let mut best_distance = std::i32::MAX;
 
-    for seg1 in wire1 {
+    let mut start1 = Point{x:0, y:0};
+    for seg1 in wire1.split(',') {
         let end1 = start1.offset(seg1);
         let line1 = make_line(start1, end1);
         start1 = end1;
-        for seg2 in &wire2 {
-            let end2 = start2.offset(&seg2);
+
+        let mut start2 = Point{x:0, y:0};
+        for seg2 in wire2.split(',') {
+            let end2 = start2.offset(seg2);
             let line2 = make_line(start2, end2);
             start2 = end2;
             // Check intersection, record best
@@ -86,5 +97,6 @@ fn main() {
             }
         }
     }
-    println!("Best intersection was at distance: {}", best_distance);
+    if best_distance == std::i32::MAX { println!("ERROR: found no intersection."); }
+    else { println!("Best intersection was at distance: {}", best_distance); }
 }
