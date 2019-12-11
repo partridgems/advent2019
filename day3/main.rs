@@ -16,7 +16,7 @@ struct Line {
 impl Line{
     fn intersect(&self, other: &Line) -> Option<Point> {
         if !(self.horizontal ^ other.horizontal) { return None; }
- 
+
         let h_line = if self.horizontal { self } else { other };
         let v_line = if self.horizontal { other } else { self };
         if h_line.low_left.y > v_line.low_left.y &&
@@ -27,6 +27,9 @@ impl Line{
             } else {
                 return None;
             }
+    }
+    fn length(&self) -> i32 {
+        return self.up_right.x - self.low_left.x + self.up_right.y - self.low_left.y;
     }
 }
 
@@ -69,17 +72,22 @@ fn main() {
     let wire2 = input_lines.next().unwrap().trim();
 
     let mut best_distance = std::i32::MAX;
+    let mut best_steps = std::i32::MAX;
 
     let mut start1 = Point{x:0, y:0};
+    let mut steps1 = 0;
     for seg1 in wire1.split(',') {
         let end1 = start1.offset(seg1);
         let line1 = make_line(start1, end1);
+        steps1 += line1.length();
         start1 = end1;
 
         let mut start2 = Point{x:0, y:0};
+        let mut steps2 = 0;
         for seg2 in wire2.split(',') {
             let end2 = start2.offset(seg2);
             let line2 = make_line(start2, end2);
+            steps2 += line2.length();
             start2 = end2;
             // Check intersection, record best
             match line1.intersect(&line2) {
@@ -88,7 +96,11 @@ fn main() {
                         continue;
                     }
                     else {
+                        let this_steps = steps1 + steps2 -
+                            make_line(start1, p).length() -
+                            make_line(start2, p).length();
                         best_distance = std::cmp::min(best_distance, p.x.abs() + p.y.abs());
+                        best_steps = std::cmp::min(best_steps, this_steps);
                     }
                 }
                 None => {
@@ -97,6 +109,11 @@ fn main() {
             }
         }
     }
-    if best_distance == std::i32::MAX { println!("ERROR: found no intersection."); }
-    else { println!("Best intersection was at distance: {}", best_distance); }
+    if best_distance == std::i32::MAX {
+        println!("ERROR: found no intersection.");
+    }
+    else {
+        println!("Nearest intersection was at distance: {}", best_distance);
+        println!("Shortest intersection was at step count: {}", best_steps);
+    }
 }
