@@ -13,7 +13,6 @@ fn day4() {
         if !only_two_digits(test) { continue; }
         if !not_decrease(test) { continue; }
         count += 1;
-        println!("Found match: {}", test);
     }
 
     println!("Total matches:{}", count);
