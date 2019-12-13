@@ -12,6 +12,36 @@ fn stdin_to_array() -> Result<Vec<i32>, Box<dyn Error>> {
   return Ok(parsed_vec);
 }
 
+struct Instruction {
+    num_params: u32,
+    
+}
+
+#[derive(Clone, Debug)]
+struct IntcodeComputer {
+    regs: Vec<i32>,
+    pc: usize,
+    input_queue: Vec<i32>,
+    output_queue: Vec<i32>,
+}
+impl IntcodeComputer {
+    fn input(&mut self, val: i32) {
+        self.input_queue.push(val);
+    }
+    fn output(&mut self, val: i32) {
+        self.output_queue.push(val);
+    }
+    fn run(&mut self, noun: Option<i32>, verb: Option<i32>) {
+        if let Some(n) = noun {
+            self.regs[1] = n;
+        }
+        if let Some(v) = verb {
+            self.regs[2] = v;
+        }
+    }
+}
+
+
 fn main() {
     let memory = match stdin_to_array() {
         Ok(x) => x,
